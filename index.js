@@ -1,12 +1,12 @@
 const express = require('express');
 const swaggerUi = require('swagger-ui-express');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 3004;
-
 
 const MongoURI = process.env.MONGODB_URI;
 
-const swaggerJSDoc = require('swagger-jsdoc'); // Move this line up
+const swaggerJSDoc = require('swagger-jsdoc');
 
 const app = express();
 
@@ -17,7 +17,6 @@ const options = {
       title: 'Visitor Hotel Management',
       version: '1.0.0',
       description: 'API Documentation for Your Express.js Application',
-      
     },
     servers: [
       {
@@ -35,14 +34,15 @@ const options = {
       },
     },
   },
-  security: [{
-    BearerAuth: [],
-  }],
-
+  security: [
+    {
+      BearerAuth: [],
+    },
+  ],
   apis: ['swagger.js'], // Replace with the path to your Express.js app file
 };
 
-const swaggerSpec = swaggerJSDoc(options); // Move this line up
+const swaggerSpec = swaggerJSDoc(options);
 
 const uri = "mongodb+srv://afifimercurial:123456789Abc@cluster0.t5fchjy.mongodb.net/?retryWrites=true&w=majority";
 
@@ -51,14 +51,13 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
-client.connect().then(res => {
-  console.log(res);
+client.connect().then(() => {
+  console.log('Connected to MongoDB');
 });
 
-// Serve Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json());
 
@@ -66,13 +65,13 @@ app.use(express.json());
 app.post('/register/user', verifyToken, async (req, res) => {
   try {
     console.log(req.user);
-    let result = await register(
+    const result = await register(
       req.body.username,
       req.body.password,
       req.body.name,
       req.body.email,
     );
-    // Assuming the register function returns an object with a 'success' property.
+
     if (result.success) {
       res.status(201).send(result); // 201 Created
     } else {
@@ -83,6 +82,7 @@ app.post('/register/user', verifyToken, async (req, res) => {
     res.status(500).send("Internal Server Error"); // 500 Internal Server Error
   }
 });
+
 
 //security login to the security account, if successfully login it will get a token for do other operation the security can do
 app.post('/login/security', (req, res) => {
@@ -278,7 +278,7 @@ app.listen(port, () => {
 });
 
 async function login(reqUsername, reqPassword) {
-  let matchUser = await client.db('benr2423').collection('security').findOne({ username: { $eq: reqUsername } });
+  const matchUser = await client.db('benr2423').collection('security').findOne({ username: { $eq: reqUsername } });
 
   if (!matchUser)
     return { message: "User not found!" };
@@ -332,7 +332,6 @@ function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime,reqTemper
   return "visitor created";
 }
 
-const jwt = require('jsonwebtoken');
 
 function generateToken(userData) {
   const token = jwt.sign(
@@ -346,13 +345,13 @@ function generateToken(userData) {
 }
 
 function verifyToken(req, res, next) {
-  let header = req.headers.authorization;
+  const header = req.headers.authorization;
   if (!header) {
     res.status(401).send('Unauthorized');
     return;
   }
 
-  let token = header.split(' ')[1];
+  const token = header.split(' ')[1];
 
   jwt.verify(token, 'mypassword', function (err, decoded) {
     if (err) {
