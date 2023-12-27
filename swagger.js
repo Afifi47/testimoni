@@ -37,6 +37,18 @@ app.post('/register/user', verifyToken, async (req, res) => {
   
     res.send(result);
   });
+  /**
+ * @swagger
+ * /protected/endpoint:
+ *   get:
+ *     security:
+ *       - BearerAuth: []
+ *     summary: Example of a protected endpoint.
+ *     description: This endpoint requires a Bearer token.
+ *     responses:
+ *       '200':
+ *         description: A successful response.
+ */
   
   /**
    * @openapi

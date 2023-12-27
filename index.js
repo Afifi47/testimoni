@@ -21,7 +21,7 @@ const options = {
     },
     servers: [
       {
-        url: 'https://vmstadak.azurewebsites.net',
+        url: 'https://testimoni.azurewebsites.net',
         description: 'Development server',
       },
     ],
