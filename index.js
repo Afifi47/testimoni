@@ -252,6 +252,9 @@ async function login(reqUsername, reqPassword) {
   if (!matchUser)
     return { message: "User not found!" };
 
+  console.log('Provided Password:', reqPassword);
+  console.log('Stored Password:', matchUser.password);
+
   if (matchUser.password === reqPassword)
     return { message: "Correct password", user: matchUser };
   else
@@ -263,6 +266,9 @@ async function loginuser(reqUsername, reqPassword) {
 
   if (!matchUser)
     return { message: "User not found!" };
+
+  console.log('Provided Password:', reqPassword);
+  console.log('Stored Password:', matchUser.password);
 
   if (matchUser.password === reqPassword)
     return { message: "Correct password", user: matchUser };
