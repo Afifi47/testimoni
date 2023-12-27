@@ -1,11 +1,14 @@
 const express = require('express');
 const swaggerUi = require('swagger-ui-express');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const port = process.env.PORT || 3004;
+
+
+const MongoURI = process.env.MONGODB_URI;
 
 const swaggerJSDoc = require('swagger-jsdoc'); // Move this line up
 
 const app = express();
-const port = 3004;
 
 const options = {
   definition: {
