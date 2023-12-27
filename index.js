@@ -14,11 +14,31 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Your API Title',
+      title: 'Visitor Hotel Management',
       version: '1.0.0',
       description: 'API Documentation for Your Express.js Application',
+      
+    },
+    servers: [
+      {
+        url: 'https://vmstadak.azurewebsites.net',
+        description: 'Development server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
     },
   },
+  security: [{
+    BearerAuth: [],
+  }],
+
   apis: ['swagger.js'], // Replace with the path to your Express.js app file
 };
 
