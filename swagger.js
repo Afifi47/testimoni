@@ -1,14 +1,9 @@
 /**
  * @openapi
- * tags:
- *   - name: Security
- *     description: Endpoints related to security
- *   - name: User
- *     description: Endpoints related to user
- *   - name: Visitor
- *     description: Endpoints related to visitor
  * /register/user:
  *   post:
+ *    tags:
+ *       - Security
  *     summary: Register a new user
  *     description: Register a new user with the provided information.
  *     security:
@@ -41,6 +36,8 @@
  * @openapi
  * /login/security:
  *   post:
+ *     tags:
+ *       - Security
  *     summary: Login to security account
  *     description: Log in to the security account and receive a token for further operations.
  *     requestBody:
@@ -67,6 +64,8 @@
  * @openapi
  * /view/visitor/security:
  *   get:
+ *     tags:
+ *       - Security
  *     summary: View all visitors (Security)
  *     description: View all visitors (requires authentication).
  *     security:
@@ -84,6 +83,8 @@
  * @openapi
  * /delete/user/{username}:
  *   delete:
+ *     tags:
+ *       - Security
  *     summary: Delete a user account
  *     description: Delete a user account along with associated data (requires authentication).
  *     parameters:
@@ -109,6 +110,8 @@
  * @openapi
  * /login/user:
  *   post:
+ *     tags:
+ *       - User
  *     summary: Login to user account
  *     description: Log in to the user account and receive a token for further operations.
  *     requestBody:
@@ -135,6 +138,8 @@
  * @openapi
  * /create/visitor/user:
  *   post:
+ *     tags:
+ *       - User
  *     summary: Create a visitor by a user
  *     description: Create a visitor record by a user (requires authentication).
  *     security:
@@ -175,6 +180,8 @@
  * @openapi
  * /view/visitor/user:
  *   get:
+ *     tags:
+ *       - User
  *     summary: View visitors created by a user
  *     description: View all visitors created by the authenticated user (requires authentication).
  *     security:
@@ -192,6 +199,8 @@
  * @openapi
  * /delete/visitor/{visitorname}:
  *   delete:
+ *     tags:
+ *       - User
  *     summary: Delete a visitor created by a user
  *     description: Delete a visitor record created by the authenticated user (requires authentication).
  *     parameters:
@@ -217,6 +226,8 @@
  * @openapi
  * /update/visitor/{visitorname}:
  *   put:
+ *     tags:
+ *       - User
  *     summary: Update visitor information
  *     description: Update information of a visitor created by the authenticated user (requires authentication).
  *     parameters:
@@ -261,6 +272,8 @@
  * @openapi
  * /view/visitor/{visitorName}:
  *   get:
+ *     tags:
+ *       - Visitor
  *     summary: View visitor details
  *     description: View details of a specific visitor by name.
  *     parameters:
