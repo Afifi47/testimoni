@@ -4,6 +4,8 @@
  *   post:
  *     summary: Register a new user
  *     description: Register a new user with the provided information.
+ *     security:
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
