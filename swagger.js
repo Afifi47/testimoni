@@ -28,16 +28,26 @@
  *         description: Internal Server Error
  */
 app.post('/register/user', verifyToken, async (req, res) => {
-  console.log('Request Payload:', req.body);
-    let result = register(
+  try {
+    console.log(req.user);
+    const result = await register(
       req.body.username,
       req.body.password,
       req.body.name,
       req.body.email,
     );
-  
-    res.send(result);
-  });
+
+    if (result.success) {
+      res.status(201).send(result); // 201 Created
+    } else {
+      res.status(400).send(result); // 400 Bad Request or another appropriate error code
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error"); // 500 Internal Server Error
+  }
+});
+
   /**
  * @swagger
  * /protected/endpoint:
