@@ -189,8 +189,8 @@ app.post('/create/visitor/user', verifyToken, async (req, res) => {
 
   const checkinTime = gmtPlus8Time.toISOString();
   
-  // Example: Check out 2 hours later
-  const checkoutTime = new Date(gmtPlus8Time.getTime() + 2 * 60 * 60 * 1000).toISOString();
+  // Example: Check out 12 hours later
+  const checkoutTime = new Date(gmtPlus8Time.getTime() + 12 * 60 * 60 * 1000).toISOString();
 
   let result = createvisitor(
     req.body.visitorname,
@@ -357,7 +357,7 @@ function generateToken(userData) {
   const token = jwt.sign(
     userData,
     'mypassword',
-    { expiresIn: 60 }
+    { expiresIn: 600 }
   );
 
   console.log(token);
