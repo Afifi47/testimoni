@@ -35,18 +35,16 @@ Content-Type: application/json
 }
 ###User create visitor 
 POST http://localhost:3004/create/visitor/user
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV6dW1ha2kiLCJpYXQiOjE3MDM3NTQwMzUsImV4cCI6MTcwMzc1NDA5NX0.rLcMfKTCwlEOOfjglLG8ZM2S3I4wgb2pR-OHrtKxccM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV6dW1ha2kiLCJpYXQiOjE3MDM3NTcwMjcsImV4cCI6MTcwMzc1NzA4N30.uQQQLrkSi9gdu9n-Hpqdzwt8Z4i9rn-autSGfq55ABU
 Content-Type: application/json
 
 {
-    "visitorname": "KIEW",
-    "checkintime": "2001-06-24T09:34:55Z",
-    "checkouttime":"2001-06-24T13:23:50Z",    
+    "visitorname": "ADLIN",
     "temperature":"27.5",
-    "gender":"male",
-    "ethnicity":"buddha",
+    "gender":"female",
+    "ethnicity":"Islam",
     "age":"22",
-    "phonenumber":"013247547"
+    "phonenumber":"019767343"
 }
 ###user view all visitors data that had created by that him (login user)
 GET http://localhost:3004/view/visitor/user

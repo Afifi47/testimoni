@@ -1,5 +1,12 @@
 /**
  * @openapi
+ * tags:
+ *   - name: Security
+ *     description: Endpoints related to security
+ *   - name: User
+ *     description: Endpoints related to user
+ *   - name: Visitor
+ *     description: Endpoints related to visitor
  * /register/user:
  *   post:
  *     summary: Register a new user

@@ -3,6 +3,7 @@ const swaggerUi = require('swagger-ui-express');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 3004;
+const moment = require('moment-timezone');
 
 const MongoURI = process.env.MONGODB_URI;
 
@@ -177,11 +178,24 @@ app.post('/login/user', (req, res) => {
 
 ///user create visitor 
 app.post('/create/visitor/user', verifyToken, async (req, res) => {
-  const createdBy = req.user.username; // Get the username from the decoded token
+  const createdBy = req.user.username;
+
+  // Use the Date object to get the current time in UTC
+  const nowUtc = new Date();
+
+  // Calculate the offset for GMT+8 (480 minutes ahead of UTC)
+  const offsetMinutes = 8 * 60;
+  const gmtPlus8Time = new Date(nowUtc.getTime() + offsetMinutes * 60 * 1000);
+
+  const checkinTime = gmtPlus8Time.toISOString();
+  
+  // Example: Check out 2 hours later
+  const checkoutTime = new Date(gmtPlus8Time.getTime() + 2 * 60 * 60 * 1000).toISOString();
+
   let result = createvisitor(
     req.body.visitorname,
-    req.body.checkintime,
-    req.body.checkouttime,
+    checkinTime,
+    checkoutTime,
     req.body.temperature,
     req.body.gender,
     req.body.ethnicity,
