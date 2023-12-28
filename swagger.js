@@ -2,7 +2,7 @@
  * @openapi
  * /register/user:
  *   post:
- *    tags:
+ *     tags:
  *       - Security
  *     summary: Register a new user
  *     description: Register a new user with the provided information.
