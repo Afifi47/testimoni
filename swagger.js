@@ -28,6 +28,7 @@
  *         description: Internal Server Error
  */
 app.post('/register/user', verifyToken, async (req, res) => {
+  console.log('Request Payload:', req.body);
     let result = register(
       req.body.username,
       req.body.password,
