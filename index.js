@@ -73,13 +73,13 @@ app.post('/register/user', verifyToken, async (req, res) => {
     );
 
     if (result.success) {
-      res.status(201).send(result); // 201 Created
+      res.status(201).json(result); // Return JSON response
     } else {
-      res.status(400).send(result); // 400 Bad Request or another appropriate error code
+      res.status(400).json(result); // Return JSON response
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error"); // 500 Internal Server Error
+    res.status(500).json({ success: false, message: "Internal Server Error" }); // Return JSON response
   }
 });
 
@@ -314,7 +314,8 @@ function register(reqUsername, reqPassword, reqName, reqEmail) {
     "name": reqName,
     "email": reqEmail,
   });
-  return "account created";
+
+  return { success: true, message: "Account created" };
 }
 ///create visitor 
 function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime,reqTemperature,reqGender,reqEthnicity,reqAge,ReqPhonenumber, createdBy) {
