@@ -9,7 +9,7 @@ Content-Type: application/json
 }
 ###security register user account
 POST http://localhost:3004/register/user 
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNvbyIsImlhdCI6MTcwMzc1MTE2NCwiZXhwIjoxNzAzNzUxMjI0fQ.BRGCNujDUf5m9CJou0aRFa3V_9c6lHPIers-eZ4BaP8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNvbyIsImlhdCI6MTcwMzc1MTc5NywiZXhwIjoxNzAzNzUxODU3fQ.2OJyAhTZIgrGexsNWkkSNgNPDITnl206thZ_jTPR8z8
 Content-Type: application/json
 
 {
@@ -20,7 +20,7 @@ Content-Type: application/json
 }
 ###security view all the visitor data
 GET http://localhost:3004/view/visitor/security
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNvbyIsImlhdCI6MTY4NjkyMDIwNywiZXhwIjoxNjg2OTIwMjY3fQ.VuZbD6GoFQlQA_b4ARxmps3uDx4aHRCKnrI0vGIc4iU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNvbyIsImlhdCI6MTcwMzc1MzQyNiwiZXhwIjoxNzAzNzUzNDg2fQ.Oy658AhEsUvFbOKkA2w9eWE4fomIm99KxWU3l_PZujA
 ###security delete the user by insert the username
 DELETE http://localhost:3004/delete/user/JOHN
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNvbyIsImlhdCI6MTY4NjkyMDkwNiwiZXhwIjoxNjg2OTIwOTY2fQ.TI09kRL9KseeaRcp83PftrOSLMi27MFO-zRsy8O2Bwo
@@ -30,12 +30,12 @@ POST http://localhost:3004/login/user
 Content-Type: application/json
 
 {
-    "username":"SAM",
+    "username":"uzumaki",
     "password":"123456"
 }
 ###User create visitor 
 POST http://localhost:3004/create/visitor/user
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNBTSIsImlhdCI6MTY4NjkyMTQ3NSwiZXhwIjoxNjg2OTIxNTM1fQ.LVYj8AnlGPDlatG5-icMpB92T9hOp3yuHXf73MBe5Ts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV6dW1ha2kiLCJpYXQiOjE3MDM3NTQwMzUsImV4cCI6MTcwMzc1NDA5NX0.rLcMfKTCwlEOOfjglLG8ZM2S3I4wgb2pR-OHrtKxccM
 Content-Type: application/json
 
 {
@@ -50,14 +50,14 @@ Content-Type: application/json
 }
 ###user view all visitors data that had created by that him (login user)
 GET http://localhost:3004/view/visitor/user
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNBTSIsImlhdCI6MTY4NjkyMjA5NywiZXhwIjoxNjg2OTIyMTU3fQ.xWJuQtppTRzGPjcBzYy4LsQ_lD68DN2ovQsI_4YdJiM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV6dW1ha2kiLCJpYXQiOjE3MDM3NTM2NzYsImV4cCI6MTcwMzc1MzczNn0.1ZlC4SBR7vAJeCnpzMziUokZl9b4RbSB9im6S6RBWEg
 ###user delete its visitor (by given visitorname) 
-DELETE http://localhost:3004/delete/visitor/JOHN
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNBTSIsImlhdCI6MTY4NjkyMjIwMSwiZXhwIjoxNjg2OTIyMjYxfQ.D6hv7XSwntFBlwk5fH9s8EVRsPJ7ctQSaQYaptkXdTk
+DELETE http://localhost:3004/delete/visitor/KIEW
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV6dW1ha2kiLCJpYXQiOjE3MDM3NTM5ODAsImV4cCI6MTcwMzc1NDA0MH0.J9v_1y-R0NGJ6lmFEj04vfcijYCOG_-GhQ3yIy4I6ZI
 ###User update their visitor info
-PUT http://localhost:3004/update/visitor/Celine
+PUT http://localhost:3004/update/visitor/KIEW
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNBTSIsImlhdCI6MTY4NjkyMjU4OSwiZXhwIjoxNjg2OTIyNjQ5fQ.nAJXns8tTq4JvJYtroU-4LtE3_D-iH-Qda5MmgvXiPM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV6dW1ha2kiLCJpYXQiOjE3MDM3NTM4OTYsImV4cCI6MTcwMzc1Mzk1Nn0.Lb-g55tFqmhYzHVxGa0UoNFYHSB0jiwEkDb1USmXRGY
 
 {
     "checkintime": "2002-06-23T06:30:55Z",
@@ -71,4 +71,4 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNBT
 
 ### Visitor UI
 ###Visitor view their data
-GET http://localhost:3004/view/visitor/JOHN
+GET http://localhost:3004/view/visitor/KIEW

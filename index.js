@@ -33,6 +33,11 @@ const options = {
         },
       },
     },
+    tags: [
+      { name: 'Security', description: 'Endpoints related to security' },
+      { name: 'User', description: 'Endpoints related to user' },
+      { name: 'Visitor', description: 'Endpoints related to visitor' },
+    ],
   },
   security: [
     {
@@ -91,14 +96,14 @@ app.post('/login/security', (req, res) => {
     .then(result => {
       if (result.message === 'Correct password') {
         const token = generateToken({ username: req.body.username });
-        res.send({ message: 'Successful login', token });
+        res.json({ message: 'Successful login', token });
       } else {
-        res.send('Login unsuccessful');
+        res.json('Login unsuccessful');
       }
     })
     .catch(error => {
       console.error(error);
-      res.status(500).send("Internal Server Error");
+      res.status(500).json("Internal Server Error");
     });
 });
 
@@ -111,10 +116,10 @@ app.get('/view/visitor/security', verifyToken, async (req, res) => {
       .find()
       .toArray();
 
-    res.send(result);
+    res.json(result);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json("Internal Server Error");
   }
 });
 
@@ -130,7 +135,7 @@ app.delete('/delete/user/:username', verifyToken, async (req, res) => {
       .deleteOne({ username });
 
     if (deleteUserResult.deletedCount === 0) {
-      return res.status(404).send('User not found');
+      return res.status(404).json('User not found');
     }
 
     // Delete the user's documents
@@ -145,10 +150,10 @@ app.delete('/delete/user/:username', verifyToken, async (req, res) => {
       .collection('visitor')
       .deleteMany({ createdBy: username });
 
-    res.send('User and associated data deleted successfully');
+    res.json('User and associated data deleted successfully');
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json('Internal Server Error');
   }
 });
 
@@ -159,14 +164,14 @@ app.post('/login/user', (req, res) => {
     .then(result => {
       if (result.message === 'Correct password') {
         const token = generateToken({ username: req.body.username });
-        res.send({ message: 'Successful login', token });
+        res.json({ message: 'Successful login', token });
       } else {
-        res.send('Login unsuccessful');
+        res.json('Login unsuccessful');
       }
     })
     .catch(error => {
       console.error(error);
-      res.status(500).send("Internal Server Error");
+      res.status(500).json("Internal Server Error");
     });
 });
 
@@ -184,7 +189,7 @@ app.post('/create/visitor/user', verifyToken, async (req, res) => {
     req.body.phonenumber,
     createdBy
   );   
-  res.send(result);
+  res.json(result);
 });
 
 ///view visitor that has been create by particular user 
@@ -197,10 +202,10 @@ app.get('/view/visitor/user', verifyToken, async (req, res) => {
       .find({ createdBy: username }) // Retrieve visitors created by the authenticated user
       .toArray();
 
-    res.send(result);
+    res.json(result);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json("Internal Server Error");
   }
 });
 
@@ -217,13 +222,13 @@ app.delete('/delete/visitor/:visitorname', verifyToken, async (req, res) => {
       .deleteOne({ visitorname: visitorname, createdBy: username });
 
     if (deleteVisitorResult.deletedCount === 0) {
-      return res.status(404).send('Visitor not found or unauthorized');
+      return res.status(404).json('Visitor not found or unauthorized');
     }
 
-    res.send('Visitor deleted successfully');
+    res.json('Visitor deleted successfully');
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json('Internal Server Error');
   }
 });
 /// user update its visitor info
@@ -242,13 +247,13 @@ app.put('/update/visitor/:visitorname', verifyToken, async (req, res) => {
       );
 
     if (updateVisitorResult.modifiedCount === 0) {
-      return res.status(404).send('Visitor not found or unauthorized');
+      return res.status(404).json('Visitor not found or unauthorized');
     }
 
-    res.send('Visitor updated successfully');
+    res.json('Visitor updated successfully');
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json('Internal Server Error');
   }
 });
 
@@ -263,13 +268,13 @@ app.get('/view/visitor/:visitorName', async (req, res) => {
       .findOne({ visitorname: visitorName });
 
     if (result) {
-      res.send(result);
+      res.json(result);
     } else {
-      res.status(404).send('Visitor not found');
+      res.status(404).json('Visitor not found');
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json('Internal Server Error');
   }
 });
 
@@ -348,7 +353,7 @@ function generateToken(userData) {
 function verifyToken(req, res, next) {
   const header = req.headers.authorization;
   if (!header) {
-    res.status(401).send('Unauthorized');
+    res.status(401).json('Unauthorized');
     return;
   }
 
@@ -356,7 +361,7 @@ function verifyToken(req, res, next) {
 
   jwt.verify(token, 'mypassword', function (err, decoded) {
     if (err) {
-      res.status(401).send('Unauthorized');
+      res.status(401).json('Unauthorized');
       return;
     }
     req.user = decoded;
