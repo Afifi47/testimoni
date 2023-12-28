@@ -70,18 +70,19 @@ app.use(express.json());
 // Security register the user account
 app.post('/register/user', verifyToken, async (req, res) => {
   try {
-    console.log(req.user);
-    const result = await register(
-      req.body.username,
-      req.body.password,
-      req.body.name,
-      req.body.email,
-    );
+    const userData = {
+      username: req.body.username,
+      password: req.body.password,
+      name: req.body.name,
+      email: req.body.email,
+    };
+
+    const result = await register(userData);
 
     if (result.success) {
       res.status(201).json(result); // Return JSON response
     } else {
-      res.status(400).json(result); // Return JSON response
+      res.status(401).json(result); // Return JSON response
     }
   } catch (error) {
     console.error(error);
@@ -326,15 +327,18 @@ async function loginuser(reqUsername, reqPassword) {
     return { message: "Invalid password" };
 }
 
-function register(reqUsername, reqPassword, reqName, reqEmail) {
-  client.db('benr2423').collection('users').insertOne({
-    "username": reqUsername,
-    "password": reqPassword,
-    "name": reqName,
-    "email": reqEmail,
-  });
+async function register(userData) {
+  try {
+    // Use userData.username, userData.password, etc. in your database insertion logic
+    await client.db('benr2423').collection('users').insertOne(userData);
 
-  return { success: true, message: "Account created" };
+    // Return the result
+    return { success: true, message: "Account created" };
+  } catch (error) {
+    console.error(error);
+    // Return the error result
+    return { success: false, message: "Registration failed" };
+  }
 }
 ///create visitor 
 function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime,reqTemperature,reqGender,reqEthnicity,reqAge,ReqPhonenumber, createdBy) {

@@ -4,10 +4,10 @@
  *   post:
  *     tags:
  *       - Security
- *     summary: Register a new user
- *     description: Register a new user with the provided information.
  *     security:
  *       - BearerAuth: []
+ *     summary: Register a user account
+ *     description: Endpoint for registering a user account (Security-related)
  *     requestBody:
  *       required: true
  *       content:
@@ -24,10 +24,10 @@
  *               email:
  *                 type: string
  *     responses:
- *       '201':
+ *       201:
  *         description: User registered successfully
- *       '400':
- *         description: Bad request, check the request payload
+ *       '401':
+ *         description: Unauthorized, invalid credentials
  *       '500':
  *         description: Internal Server Error
  */
