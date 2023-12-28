@@ -53,9 +53,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV6d
 DELETE http://localhost:3004/delete/visitor/KIEW
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV6dW1ha2kiLCJpYXQiOjE3MDM3NTM5ODAsImV4cCI6MTcwMzc1NDA0MH0.J9v_1y-R0NGJ6lmFEj04vfcijYCOG_-GhQ3yIy4I6ZI
 ###User update their visitor info
-PUT http://localhost:3004/update/visitor/KIEW
+PUT http://localhost:3004/update/visitor/topo
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV6dW1ha2kiLCJpYXQiOjE3MDM3NTM4OTYsImV4cCI6MTcwMzc1Mzk1Nn0.Lb-g55tFqmhYzHVxGa0UoNFYHSB0jiwEkDb1USmXRGY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV6dW1ha2kiLCJpYXQiOjE3MDM3Njg0NjcsImV4cCI6MTcwMzc2OTA2N30.9Oz62R-kO_yBeIBkzu8qWHjhjdz88OgJi2dVAuvNd7Q
 
 {
     "checkintime": "2002-06-23T06:30:55Z",

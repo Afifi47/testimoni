@@ -153,10 +153,6 @@
  *             properties:
  *               visitorname:
  *                 type: string
- *               checkintime:
- *                 type: string
- *               checkouttime:
- *                 type: string
  *               temperature:
  *                 type: number
  *               gender:
@@ -230,6 +226,8 @@
  *       - User
  *     summary: Update visitor information
  *     description: Update information of a visitor created by the authenticated user (requires authentication).
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: visitorname
