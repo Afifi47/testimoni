@@ -9,13 +9,13 @@ Content-Type: application/json
 }
 ###security register user account
 POST http://localhost:3004/register/user 
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNvbyIsImlhdCI6MTcwMzc1MTc5NywiZXhwIjoxNzAzNzUxODU3fQ.2OJyAhTZIgrGexsNWkkSNgNPDITnl206thZ_jTPR8z8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNvbyIsImlhdCI6MTcwMzc4NTE0OSwiZXhwIjoxNzAzNzg1NzQ5fQ.3NBMo0XawL5CLTD-GDhGxpIZpFdm3iLCvlaQgqT7CYI
 Content-Type: application/json
 
 {
     "username":"uzumaki",
     "password":"123456",
-    "name":"AFIFI ASRI",
+    "name":"AFIFI najo",
     "email":"afifiasri@mail.com"
 }
 ###security view all the visitor data
