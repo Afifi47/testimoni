@@ -77,6 +77,11 @@ app.post('/register/user', verifyToken, async (req, res) => {
       email: req.body.email,
     };
 
+    // Check if the password is strong
+    if (!isStrongPassword(userData.password)) {
+      return res.status(400).json({ success: false, message: "Password is not strong enough." });
+    }
+
     const result = await register(userData);
 
     if (result.success) {
@@ -335,6 +340,11 @@ async function register(userData) {
       throw new Error('Incomplete user data. Please provide all required fields.');
     }
 
+     // Check if the password is strong
+     if (!isStrongPassword(userData.password)) {
+      throw new Error('Password is not strong enough. It must have at least one capital letter, one non-capital letter, one symbol, and one number.');
+    }
+
     // Check if the username is already taken
     const existingUser = await client.db('benr2423').collection('users').findOne({ username: userData.username });
     if (existingUser) {
@@ -370,6 +380,18 @@ function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime,reqTemper
     "createdBy": createdBy // Add the createdBy field with the username
   });
   return "visitor created";
+}
+
+//password requirement
+function isStrongPassword(password) {
+  // Regular expressions for different password criteria
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+  // Check if all criteria are met
+  return hasUpperCase && hasLowerCase && hasNumber && hasSymbol;
 }
 
 
