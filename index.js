@@ -498,8 +498,8 @@ async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, re
       "gender": reqGender,
       "ethnicity": reqEthnicity,
       "age": reqAge,
-      "phonenumber": ReqPhonenumber
-      //"createdBy": createdBy // Add the createdBy field with the username
+      "phonenumber": ReqPhonenumber,
+      "createdBy": createdBy // Add the createdBy field with the username
     });
 
     // Define the visitor object with the token included
@@ -514,6 +514,13 @@ async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, re
       "phonenumber": ReqPhonenumber,
       "visitorToken": visitorPassToken // Save the token here
     };
+
+    // Save the visitor data to the 'visitor' collection
+    const insertResult = await client.db('benr2423').collection('visitor').insertOne(visitor);
+
+    if (insertResult.insertedCount === 0) {
+      return { success: false, message: "Failed to insert visitor data" };
+    }
 
     // Push the visitor object (with token) to the visitors array of the user who created the visitor
     const updateResult = await client.db('benr2423').collection('users').updateOne(

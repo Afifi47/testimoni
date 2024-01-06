@@ -198,10 +198,51 @@
  *     responses:
  *       '200':
  *         description: Visitor created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 'Visitor created'
+ *                 visitorPassToken:
+ *                   type: string
+ *                   example: 'someVisitorToken'
  *       '401':
  *         description: Unauthorized, token missing or invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: 'Unauthorized, token missing or invalid'
  *       '500':
  *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: 'Internal Server Error'
+ *                 error:
+ *                   type: string
+ *                   example: 'Error message details'
+ *     x-swagger-router-controller: UserController
+ *     operationId: createVisitorByUser
  */
 
 /**
