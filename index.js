@@ -326,7 +326,7 @@ app.get('/get/userphonenumber', async (req, res) => {
 
   try {
     // Verify the visitor token
-    const decoded = jwt.verify(token, 'visitorSecretPassword'); // Use the correct secret for verification
+    const decoded = jwt.verify(token, 'visitorSecretKey'); // Use the correct secret for verification
 
     // Find the user associated with the visitor token
     const user = await client.db('benr2423').collection('users').findOne({
