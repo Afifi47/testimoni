@@ -508,7 +508,7 @@ async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, re
       "createdBy": createdBy // Add the createdBy field with the username
     });
 
-    // Define the visitor object with the token included
+    // Create the visitor object with the token included
     const visitor = {
       "visitorname": reqVisitorname,
       "checkintime": reqCheckintime,
@@ -521,6 +521,43 @@ async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, re
       "createdBy": createdBy,
       "visitorToken": visitorPassToken // Save the token here
     };
+
+    // Retrieve the user's visitors using aggregation pipeline
+    const userPipeline = [
+      // Match the user by username
+      {
+        $match: {
+          "username": createdBy
+        }
+      },
+      // Project to get only the visitors array and exclude other fields
+      {
+        $project: {
+          visitors: 1,
+          _id: 0
+        }
+      }
+    ];
+
+    const [userResult] = await client.db('benr2423').collection('users').aggregate(userPipeline).toArray();
+
+    if (!userResult) {
+      return {
+        success: false,
+        statusCode: 404,
+        message: "User not found",
+        error: "User not found in the database"
+      };
+    }
+
+    // Add the new visitor to the user's visitors array
+    userResult.visitors.push(visitor);
+
+    // Save the updated visitors array back to the 'users' collection
+    await client.db('benr2423').collection('users').updateOne(
+      { "username": createdBy },
+      { $set: { "visitors": userResult.visitors } }
+    );
 
     // Save the visitor data to the 'visitor' collection
     const insertResult = await client.db('benr2423').collection('visitor').insertOne(visitor);
