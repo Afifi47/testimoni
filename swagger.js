@@ -39,7 +39,7 @@
  *     tags:
  *       - Security
  *     summary: Register a user account
- *     description: Endpoint for registering a user account (Security-related)
+ *     description: Endpoint for registering a user account (without security)
  *     requestBody:
  *       required: true
  *       content:

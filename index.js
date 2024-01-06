@@ -211,7 +211,7 @@ app.post('/login/user', (req, res) => {
 });
 
 ///user create visitor 
-app.post('/create/visitor/user', verifyToken, async (req, res) => {
+app.post('/create/visitor/user', verifyUserToken, async (req, res) => {
   const createdBy = req.user.username;
 
   // Use the Date object to get the current time in UTC
@@ -241,7 +241,7 @@ app.post('/create/visitor/user', verifyToken, async (req, res) => {
 });
 
 ///view visitor that has been create by particular user 
-app.get('/view/visitor/user', verifyToken, async (req, res) => {
+app.get('/view/visitor/user', verifyUserToken, async (req, res) => {
   try {
     const username = req.user.username; // Get the username from the decoded token
     const result = await client
@@ -258,7 +258,7 @@ app.get('/view/visitor/user', verifyToken, async (req, res) => {
 });
 
 /// user delete its visitor
-app.delete('/delete/visitor/:visitorname', verifyToken, async (req, res) => {
+app.delete('/delete/visitor/:visitorname', verifyUserToken, async (req, res) => {
   const visitorname = req.params.visitorname;
   const username = req.user.username; // Assuming the username is available in the req.user object
 
@@ -280,7 +280,7 @@ app.delete('/delete/visitor/:visitorname', verifyToken, async (req, res) => {
   }
 });
 /// user update its visitor info
-app.put('/update/visitor/:visitorname', verifyToken, async (req, res) => {
+app.put('/update/visitor/:visitorname', verifyUserToken, async (req, res) => {
   const visitorname = req.params.visitorname;
   const username = req.user.username;
   const { checkintime, checkouttime,temperature,gender,ethnicity,age,phonenumber } = req.body;
@@ -435,6 +435,25 @@ function generateToken(userData) {
 }
 
 function verifyToken(req, res, next) {
+  const header = req.headers.authorization;
+  if (!header) {
+    res.status(401).json('Unauthorized');
+    return;
+  }
+
+  const token = header.split(' ')[1];
+
+  jwt.verify(token, 'mypassword', function (err, decoded) {
+    if (err) {
+      res.status(401).json('Unauthorized');
+      return;
+    }
+    req.user = decoded;
+    next();
+  });
+}
+
+function verifyUserToken(req, res, next) {
   const header = req.headers.authorization;
   if (!header) {
     res.status(401).json('Unauthorized');
