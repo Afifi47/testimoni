@@ -315,7 +315,7 @@ app.put('/update/visitor/:visitorname', verifyUserToken, async (req, res) => {
 });
 
 // visitor pass
-app.get('/get/visitorphonenumber', async (req, res) => {
+app.get('/get/userphonenumber', async (req, res) => {
   // Extract the visitor token from the Authorization header
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -326,22 +326,25 @@ app.get('/get/visitorphonenumber', async (req, res) => {
 
   try {
     // Verify the visitor token
-    const decoded = jwt.verify(token, 'visitorSecretKey'); // Use the correct secret for verification
+    const decoded = jwt.verify(token, 'visitorSecretPassword'); // Use the correct secret for verification
 
-    // Find the visitor associated with the visitor token
-    const visitor = await client.db('benr2423').collection('visitors').findOne({
-      visitorToken: token
+    // Find the user associated with the visitor token
+    const user = await client.db('benr2423').collection('users').findOne({
+      "visitors.visitorToken": token
     });
 
-    if (visitor) {
-      // Respond with the visitor's phone number
-      res.json({ success: true, visitor_of: visitor.visitorname, visitor_phonenumber: visitor.phonenumber });
+    if (user) {
+      // Respond with the user's phone number
+      res.json({ success: true, visitor_of: user.username });
 
-      // Optionally, you might want to remove the visitor data after retrieval
-      // await client.db('benr2423').collection('visitors').deleteOne({ visitorToken: token });
+      // Remove the visitor data from the user's document
+      await client.db('benr2423').collection('users').updateOne(
+        { _id: user._id },
+        { $pull: { visitors: { visitorToken: token } } }
+      );
 
     } else {
-      res.status(404).json({ success: false, message: 'Visitor not found for the provided token.' });
+      res.status(404).json({ success: false, message: 'User not found for the provided token.' });
     }
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
