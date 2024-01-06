@@ -198,7 +198,7 @@ app.post('/login/user', (req, res) => {
   loginuser(req.body.username, req.body.password)
     .then(result => {
       if (result.message === 'Correct password') {
-        const token = generateToken({ username: req.body.username });
+        const token = generateUserToken({ username: req.body.username });
         res.json({ message: 'Successful login', token });
       } else {
         res.json('Login unsuccessful');
@@ -424,6 +424,17 @@ function isStrongPassword(password) {
 
 
 function generateToken(userData) {
+  const token = jwt.sign(
+    userData,
+    'mypassword',
+    { expiresIn: 600 }
+  );
+
+  console.log(token);
+  return token;
+}
+
+function generateUserToken(userData) {
   const token = jwt.sign(
     userData,
     'mypassword',
