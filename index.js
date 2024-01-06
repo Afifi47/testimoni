@@ -305,6 +305,50 @@ app.put('/update/visitor/:visitorname', verifyUserToken, async (req, res) => {
   }
 });
 
+// visitor pass
+app.get('/get/userphonenumber', async (req, res) => {
+  // Extract the visitor token from the Authorization header
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: 'No authorization header provided.' });
+  }
+
+  const token = authHeader.split(' ')[1]; // Assuming the header is "Bearer [token]"
+
+  try {
+    // Verify the visitor token
+    const decoded = jwt.verify(token, 'visitorSecretKey'); // Use the correct secret for verification
+
+    // Find the user associated with the visitor token
+    const user = await client.db('benr2423').collection('users').findOne({
+      "visitors.visitorToken": token
+    });
+
+    if (user) {
+      // Respond with the user's phone number
+      res.json({ success: true, visitor_of: user.username, user_phonenumber: user.phonenumber });
+
+      // Remove the visitor data from the user's document
+      await client.db('benr2423').collection('users').updateOne(
+        { _id: user._id },
+        { $pull: { visitors: { visitorToken: token } } }
+      );
+
+    } else {
+      res.status(404).json({ success: false, message: 'User not found for the provided token.' });
+    }
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      // Handle invalid token
+      res.status(401).json({ success: false, message: 'Invalid token.' });
+    } else {
+      // Handle other errors
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+    }
+  }
+});
+
 /// visitor can view their data by insert their name
 app.get('/view/visitor/:visitorName', async (req, res) => {
   const visitorName = req.params.visitorName;
@@ -326,35 +370,50 @@ app.get('/view/visitor/:visitorName', async (req, res) => {
   }
 });
 
-// Route to retrieve visitor pass using username and phone number
-app.post('/retrieve/visitorPass', verifyUserToken, async (req, res) => {
-  const { username, phonenumber } = req.body;
+//retrieve token
+app.post('/retrieve/visitorPass', async (req, res) => {
+  const { visitorname, phonenumber } = req.body;
 
   try {
-    // Check if the user has the right to retrieve visitor passes
-    // This check can be customized based on your requirements
-    // For example, you might check if the user has a specific role or permission
-    if (req.user.username !== username) {
-      return res.status(403).json('Forbidden: User does not have permission to retrieve visitor passes for this username');
+    // Use aggregation pipeline to match the user document and filter the visitors array
+    const pipeline = [
+      {
+        $match: {
+          "visitors.visitorname": visitorname,
+          "visitors.phonenumber": phonenumber
+        }
+      },
+      {
+        $project: {
+          visitors: {
+            $filter: {
+              input: "$visitors",
+              as: "visitor",
+              cond: {
+                $and: [
+                  { $eq: ["$$visitor.visitorname", visitorname] },
+                  { $eq: ["$$visitor.phonenumber", phonenumber] }
+                ]
+              }
+            }
+          },
+          _id: 0
+        }
+      }
+    ];
+
+    const [result] = await client.db('benr2423').collection('users').aggregate(pipeline).toArray();
+
+    if (result && result.visitors.length > 0) {
+      // Assuming there is only one match, take the first element of the array
+      const visitor = result.visitors[0];
+      res.json({ success: true, visitorToken: visitor.visitorToken });
+    } else {
+      res.status(404).json({ success: false, message: 'Visitor not found or no token exists.' });
     }
-
-    // Retrieve visitor passes based on username and phone number
-    const visitorPasses = await client
-      .db('benr2423')
-      .collection('visitor')
-      .find({ createdBy: username, phonenumber })
-      .toArray();
-
-    // Generate visitor tokens and include them in the response
-    const passesWithTokens = visitorPasses.map(pass => ({
-      ...pass,
-      token: generateTokenVisitor({ username: req.user.username, visitorname: pass.visitorname }),
-    }));
-
-    res.json(passesWithTokens);
   } catch (error) {
     console.error(error);
-    res.status(500).json('Internal Server Error');
+    res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
   }
 });
 
@@ -430,7 +489,21 @@ async function register(userData) {
 // Update the createvisitor function to generate a visitor token
 async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, reqTemperature, reqGender, reqEthnicity, reqAge, ReqPhonenumber, createdBy) {
   try {
-    const result = await client.db('benr2423').collection('visitor').insertOne({
+    // Generate a token for the visitor pass
+    const visitorPassToken = generateVisitorToken({
+      "visitorname": reqVisitorname,
+      "checkintime": reqCheckintime,
+      "checkouttime": reqCheckouttime,
+      "temperature": reqTemperature,
+      "gender": reqGender,
+      "ethnicity": reqEthnicity,
+      "age": reqAge,
+      "phonenumber": ReqPhonenumber
+      //"createdBy": createdBy // Add the createdBy field with the username
+    });
+
+    // Define the visitor object with the token included
+    const visitor = {
       "visitorname": reqVisitorname,
       "checkintime": reqCheckintime,
       "checkouttime": reqCheckouttime,
@@ -439,23 +512,27 @@ async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, re
       "ethnicity": reqEthnicity,
       "age": reqAge,
       "phonenumber": ReqPhonenumber,
-      "createdBy": createdBy // Add the createdBy field with the username
-    });
+      "visitorToken": visitorPassToken // Save the token here
+    };
 
-    // Check if the insertion was successful
-    if (result.acknowledged) {
-      // Generate visitor token
-      const visitorToken = generateTokenVisitor({ username: createdBy, visitorname: reqVisitorname });
+    // Push the visitor object (with token) to the visitors array of the user who created the visitor
+    const updateResult = await client.db('benr2423').collection('users').updateOne(
+      { "username": createdBy },
+      { $push: { "visitors": visitor } }
+    );
 
-      // Return success message along with the visitor token
-      return { success: true, message: "Visitor created", token: visitorToken };
-    } else {
-      // Return failure message if insertion fails
-      throw new Error('Failed to create the visitor');
+    if (updateResult.matchedCount === 0) {
+      return { success: false, message: "User not found" };
     }
+    if (updateResult.modifiedCount === 0) {
+      return { success: false, message: "Failed to add visitor to the user" };
+    }
+
+    // Return success message along with the visitor pass token
+    return { success: true, message: "Visitor created", visitorPassToken: visitorPassToken };
   } catch (error) {
-    // Return detailed error message in case of any issues
-    return { success: false, message: error.message };
+    console.error(error);
+    return { success: false, message: "Failed to create visitor: " + error.message };
   }
 }
 

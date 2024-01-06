@@ -300,6 +300,81 @@
 
 /**
  * @openapi
+ * /get/userphonenumber:
+ *   get:
+ *     tags:
+ *       - User
+ *     summary: Get user phone number from visitor token
+ *     description: |
+ *       Extracts the user's phone number from the provided visitor token.
+ *       Requires a valid Authorization header with a Bearer token.
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: User phone number retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 visitor_of:
+ *                   type: string
+ *                   example: username
+ *                 user_phonenumber:
+ *                   type: string
+ *                   example: '+1234567890'
+ *       '401':
+ *         description: Unauthorized, invalid or missing token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: 'Invalid or missing token'
+ *       '404':
+ *         description: User not found for the provided token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: 'User not found for the provided token'
+ *       '500':
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: 'Internal Server Error'
+ *                 error:
+ *                   type: string
+ *                   example: 'Error message details'
+ *     x-swagger-router-controller: UserController
+ *     operationId: getUserPhoneNumber
+ */
+
+/**
+ * @openapi
  * /view/visitor/{visitorName}:
  *   get:
  *     tags:
@@ -338,7 +413,7 @@
  *               phonenumber:
  *                 type: string
  *             required:
- *               - username
+ *               - visitorname
  *               - phonenumber
  *     responses:
  *       200:
