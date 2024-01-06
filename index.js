@@ -226,18 +226,27 @@ app.post('/create/visitor/user', verifyUserToken, async (req, res) => {
   // Example: Check out 12 hours later
   const checkoutTime = new Date(gmtPlus8Time.getTime() + 12 * 60 * 60 * 1000).toISOString();
 
-  let result = createvisitor(
-    req.body.visitorname,
-    checkinTime,
-    checkoutTime,
-    req.body.temperature,
-    req.body.gender,
-    req.body.ethnicity,
-    req.body.age,
-    req.body.phonenumber,
-    createdBy
-  );   
-  res.json(result);
+  try {
+    // Call the createvisitor function asynchronously and await its result
+    const result = await createvisitor(
+      req.body.visitorname,
+      checkinTime,
+      checkoutTime,
+      req.body.temperature,
+      req.body.gender,
+      req.body.ethnicity,
+      req.body.age,
+      req.body.phonenumber,
+      createdBy
+    );
+
+    // Send the response after getting the result
+    res.json(result);
+  } catch (error) {
+    // Handle errors and send an error response
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+  }
 });
 
 ///view visitor that has been create by particular user 
@@ -517,14 +526,29 @@ async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, re
     const insertResult = await client.db('benr2423').collection('visitor').insertOne(visitor);
 
     if (insertResult.insertedCount === 0) {
-      return { success: false, message: "Failed to insert visitor data" };
+      return {
+        success: false,
+        statusCode: 500,
+        message: "Failed to insert visitor data",
+        error: "Failed to insert visitor data to the database"
+      };
     }
 
     // Return success message along with the visitor pass token
-    return { success: true, message: "Visitor created", visitorPassToken: visitorPassToken };
+    return {
+      success: true,
+      statusCode: 200,
+      message: "Visitor created successfully",
+      visitorPassToken: visitorPassToken
+    };
   } catch (error) {
     console.error(error);
-    return { success: false, message: "Failed to create visitor: " + error.message };
+    return {
+      success: false,
+      statusCode: 500,
+      message: "Failed to create visitor",
+      error: error.message
+    };
   }
 }
 
