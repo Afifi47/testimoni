@@ -339,19 +339,19 @@
 
 /**
  * @openapi
- * /get/userphonenumber:
+ * /get/visitorphonenumber:
  *   get:
  *     tags:
- *       - User
- *     summary: Get user phone number from visitor token
+ *       - Visitor
+ *     summary: Get visitor phone number from visitor token
  *     description: |
- *       Extracts the user's phone number from the provided visitor token.
+ *       Extracts the visitor's phone number from the provided visitor token.
  *       Requires a valid Authorization header with a Bearer token.
  *     security:
  *       - BearerAuth: []
  *     responses:
  *       '200':
- *         description: User phone number retrieved successfully
+ *         description: Visitor phone number retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -362,8 +362,8 @@
  *                   example: true
  *                 visitor_of:
  *                   type: string
- *                   example: username
- *                 user_phonenumber:
+ *                   example: visitorname
+ *                 visitor_phonenumber:
  *                   type: string
  *                   example: '+1234567890'
  *       '401':
@@ -380,7 +380,7 @@
  *                   type: string
  *                   example: 'Invalid or missing token'
  *       '404':
- *         description: User not found for the provided token
+ *         description: Visitor not found for the provided token
  *         content:
  *           application/json:
  *             schema:
@@ -391,7 +391,7 @@
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: 'User not found for the provided token'
+ *                   example: 'Visitor not found for the provided token'
  *       '500':
  *         description: Internal Server Error
  *         content:

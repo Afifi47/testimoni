@@ -306,7 +306,7 @@ app.put('/update/visitor/:visitorname', verifyUserToken, async (req, res) => {
 });
 
 // visitor pass
-app.get('/get/userphonenumber', async (req, res) => {
+app.get('/get/visitorphonenumber', async (req, res) => {
   // Extract the visitor token from the Authorization header
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -319,23 +319,20 @@ app.get('/get/userphonenumber', async (req, res) => {
     // Verify the visitor token
     const decoded = jwt.verify(token, 'visitorSecretKey'); // Use the correct secret for verification
 
-    // Find the user associated with the visitor token
-    const user = await client.db('benr2423').collection('users').findOne({
-      "visitors.visitorToken": token
+    // Find the visitor associated with the visitor token
+    const visitor = await client.db('benr2423').collection('visitors').findOne({
+      visitorToken: token
     });
 
-    if (user) {
-      // Respond with the user's phone number
-      res.json({ success: true, visitor_of: user.username, user_phonenumber: user.phonenumber });
+    if (visitor) {
+      // Respond with the visitor's phone number
+      res.json({ success: true, visitor_of: visitor.visitorname, visitor_phonenumber: visitor.phonenumber });
 
-      // Remove the visitor data from the user's document
-      await client.db('benr2423').collection('users').updateOne(
-        { _id: user._id },
-        { $pull: { visitors: { visitorToken: token } } }
-      );
+      // Optionally, you might want to remove the visitor data after retrieval
+      // await client.db('benr2423').collection('visitors').deleteOne({ visitorToken: token });
 
     } else {
-      res.status(404).json({ success: false, message: 'User not found for the provided token.' });
+      res.status(404).json({ success: false, message: 'Visitor not found for the provided token.' });
     }
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -512,6 +509,7 @@ async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, re
       "ethnicity": reqEthnicity,
       "age": reqAge,
       "phonenumber": ReqPhonenumber,
+      "createdBy": createdBy,
       "visitorToken": visitorPassToken // Save the token here
     };
 
@@ -520,19 +518,6 @@ async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, re
 
     if (insertResult.insertedCount === 0) {
       return { success: false, message: "Failed to insert visitor data" };
-    }
-
-    // Push the visitor object (with token) to the visitors array of the user who created the visitor
-    const updateResult = await client.db('benr2423').collection('users').updateOne(
-      { "username": createdBy },
-      { $push: { "visitors": visitor } }
-    );
-
-    if (updateResult.matchedCount === 0) {
-      return { success: false, message: "User not found" };
-    }
-    if (updateResult.modifiedCount === 0) {
-      return { success: false, message: "Failed to add visitor to the user" };
     }
 
     // Return success message along with the visitor pass token
