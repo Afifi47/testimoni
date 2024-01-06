@@ -34,6 +34,38 @@
 
 /**
  * @openapi
+ * /register/test/user:
+ *   post:
+ *     tags:
+ *       - Security
+ *     summary: Register a user account
+ *     description: Endpoint for registering a user account (Security-related)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       '401':
+ *         description: Unauthorized, invalid credentials
+ *       '500':
+ *         description: Internal Server Error
+ */
+
+/**
+ * @openapi
  * /login/security:
  *   post:
  *     tags:

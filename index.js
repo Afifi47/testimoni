@@ -95,6 +95,34 @@ app.post('/register/user', verifyToken, async (req, res) => {
   }
 });
 
+// Testing without Security to register the user account
+app.post('/register/test/user', async (req, res) => {
+  try {
+    const userData = {
+      username: req.body.username,
+      password: req.body.password,
+      name: req.body.name,
+      email: req.body.email,
+    };
+
+    // Check if the password is strong
+    if (!isStrongPassword(userData.password)) {
+      return res.status(400).json({ success: false, message: "Password is not strong enough." });
+    }
+
+    const result = await register(userData);
+
+    if (result.success) {
+      res.status(201).json(result); // Return JSON response
+    } else {
+      res.status(401).json(result); // Return JSON response
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" }); // Return JSON response
+  }
+});
+
 
 //security login to the security account, if successfully login it will get a token for do other operation the security can do
 app.post('/login/security', (req, res) => {
@@ -388,7 +416,7 @@ function isStrongPassword(password) {
   const hasUpperCase = /[A-Z]/.test(password);
   const hasLowerCase = /[a-z]/.test(password);
   const hasNumber = /\d/.test(password);
-  const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  const hasSymbol = /[!@#$%^&*(),.?":{}|<>-_]/.test(password);
 
   // Check if all criteria are met
   return hasUpperCase && hasLowerCase && hasNumber && hasSymbol;
