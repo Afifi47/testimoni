@@ -68,7 +68,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json());
 
 // Security register the user account
-app.post('/register/user', verifyToken, async (req, res) => {
+app.post('/register/user', verifySecurityToken, async (req, res) => {
   try {
     const userData = {
       username: req.body.username,
@@ -130,7 +130,7 @@ app.post('/login/security', (req, res) => {
   login(req.body.username, req.body.password)
     .then(result => {
       if (result.message === 'Correct password') {
-        const token = generateToken({ username: req.body.username });
+        const token = generateSecurityToken({ username: req.body.username });
         res.json({ message: 'Successful login', token });
       } else {
         res.json('Login unsuccessful');
@@ -143,7 +143,7 @@ app.post('/login/security', (req, res) => {
 });
 
 //the security view all the visitor (the token is true)
-app.get('/view/visitor/security', verifyToken, async (req, res) => {
+app.get('/view/visitor/security', verifySecurityToken, async (req, res) => {
   try {
     const result = await client
       .db('benr2423')
@@ -159,7 +159,7 @@ app.get('/view/visitor/security', verifyToken, async (req, res) => {
 });
 
 /// security have kuasa to delete the user account after delete the user account all the visitor created by particular user also will delete
-app.delete('/delete/user/:username', verifyToken, async (req, res) => {
+app.delete('/delete/user/:username', verifySecurityToken, async (req, res) => {
   const username = req.params.username;
 
   try {
@@ -326,6 +326,38 @@ app.get('/view/visitor/:visitorName', async (req, res) => {
   }
 });
 
+// Route to retrieve visitor pass using username and phone number
+app.post('/retrieve/visitorPass', verifyUserToken, async (req, res) => {
+  const { username, phonenumber } = req.body;
+
+  try {
+    // Check if the user has the right to retrieve visitor passes
+    // This check can be customized based on your requirements
+    // For example, you might check if the user has a specific role or permission
+    if (req.user.username !== username) {
+      return res.status(403).json('Forbidden: User does not have permission to retrieve visitor passes for this username');
+    }
+
+    // Retrieve visitor passes based on username and phone number
+    const visitorPasses = await client
+      .db('benr2423')
+      .collection('visitor')
+      .find({ createdBy: username, phonenumber })
+      .toArray();
+
+    // Generate visitor tokens and include them in the response
+    const passesWithTokens = visitorPasses.map(pass => ({
+      ...pass,
+      token: generateTokenVisitor({ username: req.user.username, visitorname: pass.visitorname }),
+    }));
+
+    res.json(passesWithTokens);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json('Internal Server Error');
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
@@ -395,19 +427,36 @@ async function register(userData) {
   }
 }
 ///create visitor 
-function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime,reqTemperature,reqGender,reqEthnicity,reqAge,ReqPhonenumber, createdBy) {
-  client.db('benr2423').collection('visitor').insertOne({
-    "visitorname": reqVisitorname,
-    "checkintime": reqCheckintime,
-    "checkouttime": reqCheckouttime,
-    "temperature":reqTemperature,
-    "gender":reqGender,
-    "ethnicity":reqEthnicity,
-    "age":reqAge,
-    "phonenumber":ReqPhonenumber,
-    "createdBy": createdBy // Add the createdBy field with the username
-  });
-  return "visitor created";
+// Update the createvisitor function to generate a visitor token
+async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, reqTemperature, reqGender, reqEthnicity, reqAge, ReqPhonenumber, createdBy) {
+  try {
+    const result = await client.db('benr2423').collection('visitor').insertOne({
+      "visitorname": reqVisitorname,
+      "checkintime": reqCheckintime,
+      "checkouttime": reqCheckouttime,
+      "temperature": reqTemperature,
+      "gender": reqGender,
+      "ethnicity": reqEthnicity,
+      "age": reqAge,
+      "phonenumber": ReqPhonenumber,
+      "createdBy": createdBy // Add the createdBy field with the username
+    });
+
+    // Check if the insertion was successful
+    if (result.acknowledged) {
+      // Generate visitor token
+      const visitorToken = generateTokenVisitor({ username: createdBy, visitorname: reqVisitorname });
+
+      // Return success message along with the visitor token
+      return { success: true, message: "Visitor created", token: visitorToken };
+    } else {
+      // Return failure message if insertion fails
+      throw new Error('Failed to create the visitor');
+    }
+  } catch (error) {
+    // Return detailed error message in case of any issues
+    return { success: false, message: error.message };
+  }
 }
 
 //password requirement
@@ -423,10 +472,11 @@ function isStrongPassword(password) {
 }
 
 
-function generateToken(userData) {
+// Function to generate a security token
+function generateSecurityToken(userData) {
   const token = jwt.sign(
     userData,
-    'mypassword',
+    'securitySecretKey',
     { expiresIn: 600 }
   );
 
@@ -434,10 +484,11 @@ function generateToken(userData) {
   return token;
 }
 
+// Function to generate a user token
 function generateUserToken(userData) {
   const token = jwt.sign(
     userData,
-    'mypassword',
+    'userSecretKey',
     { expiresIn: 600 }
   );
 
@@ -445,7 +496,21 @@ function generateUserToken(userData) {
   return token;
 }
 
-function verifyToken(req, res, next) {
+// Function to generate a visitor token
+function generateVisitorToken(userData) {
+  const token = jwt.sign(
+    userData,
+    'visitorSecretKey',
+    { expiresIn: 86400 }
+  );
+
+  console.log(token);
+  return token;
+}
+
+
+// Middleware to verify security token
+function verifySecurityToken(req, res, next) {
   const header = req.headers.authorization;
   if (!header) {
     res.status(401).json('Unauthorized');
@@ -454,7 +519,7 @@ function verifyToken(req, res, next) {
 
   const token = header.split(' ')[1];
 
-  jwt.verify(token, 'mypassword', function (err, decoded) {
+  jwt.verify(token, 'securitySecretKey', function (err, decoded) {
     if (err) {
       res.status(401).json('Unauthorized');
       return;
@@ -464,6 +529,7 @@ function verifyToken(req, res, next) {
   });
 }
 
+// Middleware to verify user token
 function verifyUserToken(req, res, next) {
   const header = req.headers.authorization;
   if (!header) {
@@ -473,7 +539,27 @@ function verifyUserToken(req, res, next) {
 
   const token = header.split(' ')[1];
 
-  jwt.verify(token, 'mypassword', function (err, decoded) {
+  jwt.verify(token, 'userSecretKey', function (err, decoded) {
+    if (err) {
+      res.status(401).json('Unauthorized');
+      return;
+    }
+    req.user = decoded;
+    next();
+  });
+}
+
+// Middleware to verify visitor token
+function verifyVisitorToken(req, res, next) {
+  const header = req.headers.authorization;
+  if (!header) {
+    res.status(401).json('Unauthorized');
+    return;
+  }
+
+  const token = header.split(' ')[1];
+
+  jwt.verify(token, 'visitorSecretKey', function (err, decoded) {
     if (err) {
       res.status(401).json('Unauthorized');
       return;

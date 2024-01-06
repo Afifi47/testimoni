@@ -316,3 +316,62 @@
  *       '200':
  *         description: Visitor details
  */
+
+/**
+ * @openapi
+ * /retrieve/visitorPass:
+ *   post:
+ *     summary: Retrieve visitor passes using username and phone number
+ *     tags:
+ *       - Visitor
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               phonenumber:
+ *                 type: string
+ *             required:
+ *               - username
+ *               - phonenumber
+ *     responses:
+ *       200:
+ *         description: Successful retrieval of visitor passes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   visitorname:
+ *                     type: string
+ *                   checkintime:
+ *                     type: string
+ *                   checkouttime:
+ *                     type: string
+ *                   temperature:
+ *                     type: number
+ *                   gender:
+ *                     type: string
+ *                   ethnicity:
+ *                     type: string
+ *                   age:
+ *                     type: number
+ *                   phonenumber:
+ *                     type: string
+ *                   createdBy:
+ *                     type: string
+ *                   token:
+ *                     type: string
+ *       403:
+ *         description: Forbidden, user does not have permission
+ *       500:
+ *         description: Internal Server Error
+ */
