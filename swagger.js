@@ -241,8 +241,6 @@
  *                 error:
  *                   type: string
  *                   example: 'Error message details'
- *     x-swagger-router-controller: UserController
- *     operationId: createVisitorByUser
  */
 
 /**
@@ -410,8 +408,6 @@
  *                 error:
  *                   type: string
  *                   example: 'Error message details'
- *     x-swagger-router-controller: UserController
- *     operationId: getUserPhoneNumber
  */
 
 /**
@@ -497,6 +493,4 @@
  *                 error:
  *                   type: string
  *                   example: 'Error message details'
- *     x-swagger-router-controller: VisitorController
- *     operationId: retrieveVisitorPass
  */
