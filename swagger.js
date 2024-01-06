@@ -339,19 +339,24 @@
 
 /**
  * @openapi
- * /get/visitorphonenumber:
+ * /get/userphonenumber:
  *   get:
+ *     summary: Retrieve the visitor's destination using visitor token
+ *     description: Allows security personnel to retrieve the detail of the user associated with a given visitor token. The token must be provided in the Authorization header.
  *     tags:
- *       - Visitor
- *     summary: Get visitor phone number from visitor token
- *     description: |
- *       Extracts the visitor's phone number from the provided visitor token.
- *       Requires a valid Authorization header with a Bearer token.
+ *       - Security
  *     security:
  *       - BearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Bearer token for authentication.
  *     responses:
  *       '200':
- *         description: Visitor phone number retrieved successfully
+ *         description: Successfully retrieved the visitor's destination.
  *         content:
  *           application/json:
  *             schema:
@@ -362,53 +367,14 @@
  *                   example: true
  *                 visitor_of:
  *                   type: string
- *                   example: visitorname
- *                 visitor_phonenumber:
- *                   type: string
- *                   example: '+1234567890'
  *       '401':
- *         description: Unauthorized, invalid or missing token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: 'Invalid or missing token'
+ *         description: Unauthorized. Token is missing, invalid, or expired.
  *       '404':
- *         description: Visitor not found for the provided token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: 'Visitor not found for the provided token'
+ *         description: User not found for the provided token.
  *       '500':
- *         description: Internal Server Error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: 'Internal Server Error'
- *                 error:
- *                   type: string
- *                   example: 'Error message details'
+ *         description: Internal Server Error.
  */
+
 
 /**
  * @openapi
