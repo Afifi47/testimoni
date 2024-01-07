@@ -339,7 +339,7 @@
 
 /**
  * @openapi
- * /get/userphonenumber:
+ * /get/user/phonenumber:
  *   get:
  *     summary: Retrieve the visitor's destination using visitor token
  *     description: Allows security personnel to retrieve the detail of the user associated with a given visitor token. The token must be provided in the Authorization header.

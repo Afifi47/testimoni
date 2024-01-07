@@ -315,7 +315,7 @@ app.put('/update/visitor/:visitorname', verifyUserToken, async (req, res) => {
 });
 
 // visitor pass
-app.get('/get/userphonenumber', async (req, res) => {
+app.get('/get/user/phonenumber', async (req, res) => {
   // Extract the visitor token from the Authorization header
   const authHeader = req.headers.authorization;
   if (!authHeader) {
