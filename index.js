@@ -395,58 +395,43 @@ app.post('/retrieve/visitorPass', async (req, res) => {
   const { visitorname, phonenumber } = req.body;
 
   try {
-    // Call the createvisitor function to generate the visitor token
-    const createVisitorResult = await createvisitor(visitorname, phonenumber);
-
-    if (createVisitorResult.success) {
-      // Extract the visitor token from the result
-      const visitorToken = createVisitorResult.visitorPassToken;
-
-      // Wait for a short time to ensure the database has been updated
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Use aggregation pipeline to match the user document and filter the visitors array
-      const pipeline = [
-        {
-          $match: {
-            "visitors.visitorname": visitorname,
-            "visitors.phonenumber": phonenumber
-          }
-        },
-        {
-          $project: {
-            visitors: {
-              $filter: {
-                input: "$visitors",
-                as: "visitor",
-                cond: {
-                  $and: [
-                    { $eq: ["$$visitor.visitorname", visitorname] },
-                    { $eq: ["$$visitor.phonenumber", phonenumber] }
-                  ]
-                }
-              }
-            },
-            _id: 0
-          }
+    // Use aggregation pipeline to match the user document and filter the visitors array
+    const pipeline = [
+      {
+        $match: {
+          "visitors.visitorname": visitorname,
+          "visitors.phonenumber": phonenumber
         }
-      ];
-
-      const [result] = await client.db('benr2423').collection('users').aggregate(pipeline).toArray();
-
-      if (result && result.visitors.length > 0) {
-        // Assuming there is only one match, take the first element of the array
-        const visitor = result.visitors[0];
-        res.json({ success: true, visitorToken: visitorToken });
-      } else {
-        res.status(404).json({ success: false, message: 'Visitor not found or no token exists.' });
+      },
+      {
+        $project: {
+          visitors: {
+            $filter: {
+              input: "$visitors",
+              as: "visitor",
+              cond: {
+                $and: [
+                  { $eq: ["$$visitor.visitorname", visitorname] },
+                  { $eq: ["$$visitor.phonenumber", phonenumber] }
+                ]
+              }
+            }
+          },
+          _id: 0
+        }
       }
+    ];
+
+    const [result] = await client.db('benr2423').collection('users').aggregate(pipeline).toArray();
+
+    if (result && result.visitors.length > 0) {
+      // Assuming there is only one match, take the first element of the array
+      const visitor = result.visitors[0];
+      res.json({ success: true, visitorToken: visitor.visitorToken });
     } else {
-      // Handle the case where visitor creation failed
-      res.status(createVisitorResult.statusCode).json({ success: false, message: createVisitorResult.message });
+      res.status(404).json({ success: false, message: 'Visitor not found or no token exists.' });
     }
   } catch (error) {
-    // Handle unexpected errors
     console.error(error);
     res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
   }
@@ -547,8 +532,8 @@ async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, re
       "ethnicity": reqEthnicity,
       "age": reqAge,
       "phonenumber": ReqPhonenumber,
-      "createdBy": createdBy
-      //"visitorToken": visitorPassToken // Save the token here
+      "createdBy": createdBy,
+      "visitorToken": visitorPassToken // Save the token here
     };
 
     // Retrieve the user's visitors using aggregation pipeline
@@ -659,8 +644,8 @@ function generateUserToken(userData) {
 function generateVisitorToken(userData) {
   const token = jwt.sign(
     userData,
-    'visitorSecretKey',
-    { expiresIn: 86400 }
+    'visitorSecretKey'
+    //{ expiresIn: 86400 }
   );
 
   console.log(token);

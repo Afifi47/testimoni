@@ -75,6 +75,6 @@ POST http://localhost:3004/retrieve/visitorPass
 Content-Type: application/json
 
 {
-    "visitorname": "mawajada",
-    "phonenumber":"96"
+    "visitorname": "farid",
+    "phonenumber":"12"
 }
