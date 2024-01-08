@@ -337,6 +337,17 @@ app.get('/get/user/phonenumber', async (req, res) => {
       // Respond with the user's phone number
       res.json({ success: true, visitor_of: user.username });
 
+      // Update the checkout time for the visitor in the 'visitor' collection
+      const nowUtc = new Date();
+      const offsetMinutes = 8 * 60; // GMT+8
+      const gmtPlus8Time = new Date(nowUtc.getTime() + offsetMinutes * 60 * 1000);
+      const checkoutTime = gmtPlus8Time.toISOString();
+
+      await client.db('benr2423').collection('visitor').updateOne(
+        { "visitorToken": token },
+        { $set: { "checkouttime": checkoutTime } }
+      );
+
       // Remove the visitor data from the user's document
       await client.db('benr2423').collection('users').updateOne(
         { _id: user._id },
@@ -384,43 +395,55 @@ app.post('/retrieve/visitorPass', async (req, res) => {
   const { visitorname, phonenumber } = req.body;
 
   try {
-    // Use aggregation pipeline to match the user document and filter the visitors array
-    const pipeline = [
-      {
-        $match: {
-          "visitors.visitorname": visitorname,
-          "visitors.phonenumber": phonenumber
-        }
-      },
-      {
-        $project: {
-          visitors: {
-            $filter: {
-              input: "$visitors",
-              as: "visitor",
-              cond: {
-                $and: [
-                  { $eq: ["$$visitor.visitorname", visitorname] },
-                  { $eq: ["$$visitor.phonenumber", phonenumber] }
-                ]
+    // Call the createvisitor function to generate the visitor token
+    const createVisitorResult = await createvisitor(visitorname, phonenumber);
+
+    if (createVisitorResult.success) {
+      // Extract the visitor token from the result
+      const visitorToken = createVisitorResult.visitorPassToken;
+
+      // Use aggregation pipeline to match the user document and filter the visitors array
+      const pipeline = [
+        {
+          $match: {
+            "visitors.visitorname": visitorname,
+            "visitors.phonenumber": phonenumber
+          }
+        },
+        {
+          $project: {
+            visitors: {
+              $filter: {
+                input: "$visitors",
+                as: "visitor",
+                cond: {
+                  $and: [
+                    { $eq: ["$$visitor.visitorname", visitorname] },
+                    { $eq: ["$$visitor.phonenumber", phonenumber] }
+                  ]
+                }
               }
-            }
-          },
-          _id: 0
+            },
+            _id: 0
+          }
         }
+      ];
+
+      const [result] = await client.db('benr2423').collection('users').aggregate(pipeline).toArray();
+
+      if (result && result.visitors.length > 0) {
+        // Assuming there is only one match, take the first element of the array
+        const visitor = result.visitors[0];
+        res.json({ success: true, visitorToken: visitorToken });
+      } else {
+        res.status(404).json({ success: false, message: 'Visitor not found or no token exists.' });
       }
-    ];
-
-    const [result] = await client.db('benr2423').collection('users').aggregate(pipeline).toArray();
-
-    if (result && result.visitors.length > 0) {
-      // Assuming there is only one match, take the first element of the array
-      const visitor = result.visitors[0];
-      res.json({ success: true, visitorToken: visitor.visitorToken });
     } else {
-      res.status(404).json({ success: false, message: 'Visitor not found or no token exists.' });
+      // Handle the case where visitor creation failed
+      res.status(createVisitorResult.statusCode).json({ success: false, message: createVisitorResult.message });
     }
   } catch (error) {
+    // Handle unexpected errors
     console.error(error);
     res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
   }
@@ -521,8 +544,8 @@ async function createvisitor(reqVisitorname, reqCheckintime, reqCheckouttime, re
       "ethnicity": reqEthnicity,
       "age": reqAge,
       "phonenumber": ReqPhonenumber,
-      "createdBy": createdBy,
-      "visitorToken": visitorPassToken // Save the token here
+      "createdBy": createdBy
+      //"visitorToken": visitorPassToken // Save the token here
     };
 
     // Retrieve the user's visitors using aggregation pipeline
