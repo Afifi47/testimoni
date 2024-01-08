@@ -402,6 +402,9 @@ app.post('/retrieve/visitorPass', async (req, res) => {
       // Extract the visitor token from the result
       const visitorToken = createVisitorResult.visitorPassToken;
 
+      // Wait for a short time to ensure the database has been updated
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Use aggregation pipeline to match the user document and filter the visitors array
       const pipeline = [
         {
