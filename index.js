@@ -330,7 +330,7 @@ app.put('/update/visitor/:visitorname', verifyUserToken, async (req, res) => {
 });
 
 // visitor pass
-app.get('/get/user/visitorPass', verifySecurityToken, async (req, res) => {
+app.get('/get/user/visitorPass', async (req, res) => {
   try {
     // The verifyToken middleware will authenticate the user first.
     // Once authenticated, we expect the visitorToken to be part of the query parameters.
