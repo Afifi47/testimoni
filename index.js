@@ -657,9 +657,9 @@ function generateUserToken(userData) {
 }
 
 // Function to generate a visitor token
-function generateVisitorToken(userData) {
+function generateVisitorToken(visitorData) {
   const token = jwt.sign(
-    userData,
+    visitorData,
     'visitorSecretKey'
   );
 
