@@ -113,6 +113,25 @@
 
 /**
  * @openapi
+ * /view/user/security:
+ *   get:
+ *     tags:
+ *       - Security
+ *     summary: View all users (Security)
+ *     description: View all users (requires authentication).
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: List of all users
+ *       '401':
+ *         description: Unauthorized, token missing or invalid
+ *       '500':
+ *         description: Internal Server Error
+ */
+
+/**
+ * @openapi
  * /delete/user/{username}:
  *   delete:
  *     tags:

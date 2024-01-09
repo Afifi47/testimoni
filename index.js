@@ -158,6 +158,21 @@ app.get('/view/visitor/security', verifySecurityToken, async (req, res) => {
   }
 });
 
+app.get('/view/user/security', verifySecurityToken, async (req, res) => {
+  try {
+    const result = await client
+      .db('benr2423')
+      .collection('users')
+      .find()
+      .toArray();
+
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 /// security have kuasa to delete the user account after delete the user account all the visitor created by particular user also will delete
 app.delete('/delete/user/:username', verifySecurityToken, async (req, res) => {
   const username = req.params.username;
@@ -317,24 +332,19 @@ app.put('/update/visitor/:visitorname', verifyUserToken, async (req, res) => {
 // visitor pass
 app.get('/get/user/visitorPass', verifySecurityToken, async (req, res) => {
   try {
-    // Extract the visitor token from the Authorization header
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ success: false, message: 'No authorization header provided.' });
+    // The verifyToken middleware will authenticate the user first.
+    // Once authenticated, we expect the visitorToken to be part of the query parameters.
+
+    const visitorToken = req.query.visitorToken; // Retrieve the visitorToken from query parameters
+
+    if (!visitorToken) {
+      // If visitorToken is not provided, send a request for it.
+      return res.status(400).json({ success: false, message: 'Visitor token is required.' });
     }
-
-    const token = authHeader.split(' ')[1]; // Assuming the header is "Bearer [token]"
-
-    console.log('Token received:', token);
-
-    // Verify the visitor token
-    const decoded = jwt.verify(token, 'visitorSecretKey'); // Use the correct secret for verification
-
-    console.log('Verification result:', decoded);
 
     // Find the user associated with the visitor token
     const user = await client.db('benr2423').collection('users').findOne({
-      "visitors.visitorToken": token
+      "visitors.visitorToken": visitorToken
     });
 
     if (user) {
@@ -348,14 +358,14 @@ app.get('/get/user/visitorPass', verifySecurityToken, async (req, res) => {
       const checkoutTime = gmtPlus8Time.toISOString();
 
       await client.db('benr2423').collection('visitor').updateOne(
-        { "visitorToken": token },
+        { "visitorToken": visitorToken },
         { $set: { "checkouttime": checkoutTime } }
       );
 
       // Remove the visitor data from the user's document
       await client.db('benr2423').collection('users').updateOne(
         { _id: user._id },
-        { $pull: { visitors: { visitorToken: token } } }
+        { $pull: { visitors: { visitorToken: visitorToken } } }
       );
 
     } else {
@@ -651,7 +661,6 @@ function generateVisitorToken(userData) {
   const token = jwt.sign(
     userData,
     'visitorSecretKey'
-    //{ expiresIn: 86400 }
   );
 
   console.log(token);
@@ -714,7 +723,7 @@ function verifyVisitorToken(req, res, next) {
       res.status(401).json('Unauthorized');
       return;
     }
-    req.user = decoded;
+    req.visitor = decoded; // Attach decoded visitor data to req
     next();
   });
 }
