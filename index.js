@@ -333,18 +333,18 @@ app.put('/update/visitor/:visitorname', verifyUserToken, async (req, res) => {
 app.get('/get/user/visitorPass', verifySecurityToken, async (req, res) => {
   try {
     // The verifyToken middleware will authenticate the user first.
-    // Once authenticated, we expect the visitorToken to be part of the query parameters.
+    // Once authenticated, we expect the visitorPassToken to be part of the query parameters.
 
-    const visitorToken = req.query.visitorToken; // Retrieve the visitorToken from query parameters
+    const visitorPassToken = req.query.visitorPassToken; // Retrieve the visitorPassToken from query parameters
 
-    if (!visitorToken) {
-      // If visitorToken is not provided, send a request for it.
+    if (!visitorPassToken) {
+      // If visitorPassToken is not provided, send a request for it.
       return res.status(400).json({ success: false, message: 'Visitor token is required.' });
     }
 
     // Find the user associated with the visitor token
     const user = await client.db('benr2423').collection('users').findOne({
-      "visitors.visitorToken": visitorToken
+      "visitors.visitorPassToken": visitorPassToken
     });
 
     if (user) {
@@ -358,14 +358,14 @@ app.get('/get/user/visitorPass', verifySecurityToken, async (req, res) => {
       const checkoutTime = gmtPlus8Time.toISOString();
 
       await client.db('benr2423').collection('visitor').updateOne(
-        { "visitorToken": visitorToken },
+        { "visitorPassToken": visitorPassToken },
         { $set: { "checkouttime": checkoutTime } }
       );
 
       // Remove the visitor data from the user's document
       await client.db('benr2423').collection('users').updateOne(
         { _id: user._id },
-        { $pull: { visitors: { visitorToken: visitorToken } } }
+        { $pull: { visitors: { visitorPassToken: visitorPassToken } } }
       );
 
     } else {
@@ -443,7 +443,7 @@ app.post('/retrieve/visitorPass', async (req, res) => {
     if (result && result.visitors.length > 0) {
       // Assuming there is only one match, take the first element of the array
       const visitor = result.visitors[0];
-      res.json({ success: true, visitorToken: visitor.visitorToken });
+      res.json({ success: true, visitorPassToken: visitor.visitorPassToken });
     } else {
       res.status(404).json({ success: false, message: 'Visitor not found or no token exists.' });
     }
