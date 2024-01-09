@@ -315,18 +315,22 @@ app.put('/update/visitor/:visitorname', verifyUserToken, async (req, res) => {
 });
 
 // visitor pass
-app.get('/get/user/phonenumber', verifySecurityToken, async (req, res) => {
-  // Extract the visitor token from the Authorization header
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ success: false, message: 'No authorization header provided.' });
-  }
-
-  const token = authHeader.split(' ')[1]; // Assuming the header is "Bearer [token]"
-
+app.get('/get/user/visitorPass', verifySecurityToken, async (req, res) => {
   try {
+    // Extract the visitor token from the Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ success: false, message: 'No authorization header provided.' });
+    }
+
+    const token = authHeader.split(' ')[1]; // Assuming the header is "Bearer [token]"
+
+    console.log('Token received:', token);
+
     // Verify the visitor token
     const decoded = jwt.verify(token, 'visitorSecretKey'); // Use the correct secret for verification
+
+    console.log('Verification result:', decoded);
 
     // Find the user associated with the visitor token
     const user = await client.db('benr2423').collection('users').findOne({
@@ -360,6 +364,7 @@ app.get('/get/user/phonenumber', verifySecurityToken, async (req, res) => {
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       // Handle invalid token
+      console.error('Token verification error:', error.message);
       res.status(401).json({ success: false, message: 'Invalid token.' });
     } else {
       // Handle other errors
@@ -368,6 +373,7 @@ app.get('/get/user/phonenumber', verifySecurityToken, async (req, res) => {
     }
   }
 });
+
 
 /// visitor can view their data by insert their name
 app.get('/view/visitor/:visitorName', async (req, res) => {

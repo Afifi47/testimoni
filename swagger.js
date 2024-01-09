@@ -339,10 +339,12 @@
 
 /**
  * @openapi
- * /get/user/phonenumber:
+ * /get/user/visitorPass:
  *   get:
  *     summary: Retrieve the visitor's destination using visitor token
- *     description: Allows security personnel to retrieve the detail of the user associated with a given visitor token. The token must be provided in the Authorization header.
+ *     description: |
+ *       Allows security personnel to retrieve the detail of the user associated with a given visitor token.
+ *       The token must be provided in the Authorization header.
  *     tags:
  *       - Security
  *     security:
@@ -369,10 +371,43 @@
  *                   type: string
  *       '401':
  *         description: Unauthorized. Token is missing, invalid, or expired.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: 'No authorization header provided.'
  *       '404':
  *         description: User not found for the provided token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: 'User not found for the provided token.'
  *       '500':
  *         description: Internal Server Error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: 'Internal Server Error.'
  */
 
 
