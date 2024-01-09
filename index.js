@@ -331,59 +331,57 @@ app.put('/update/visitor/:visitorname', verifyUserToken, async (req, res) => {
 
 // visitor pass
 app.get('/get/user/visitorPass', async (req, res) => {
-  try {
-    // The verifyToken middleware will authenticate the user first.
-    // Once authenticated, we expect the visitorToken to be part of the query parameters.
+ // Extract the visitor token from the Authorization header
+ const authHeader = req.headers.authorization;
+ if (!authHeader) {
+   return res.status(401).json({ success: false, message: 'No authorization header provided.' });
+ }
 
-    const visitorToken = req.query.visitorToken; // Retrieve the visitorToken from query parameters
+ const token = authHeader.split(' ')[1]; // Assuming the header is "Bearer [token]"
 
-    if (!visitorToken) {
-      // If visitorToken is not provided, send a request for it.
-      return res.status(400).json({ success: false, message: 'Visitor token is required.' });
-    }
+ try {
+   // Verify the visitor token
+   const decoded = jwt.verify(token, 'visitorSecretKey'); // Use the correct secret for verification
 
-    // Find the user associated with the visitor token
-    const user = await client.db('benr2423').collection('users').findOne({
-      "visitors.visitorToken": visitorToken
-    }, {
-      projection: { 'username': 1, _id: 0 }
-    });
+   // Find the user associated with the visitor token
+   const user = await client.db('benr2423').collection('users').findOne({
+     "visitors.visitorToken": token
+   });
 
-    if (user) {
-      // Respond with the user's phone number
-      res.json({ success: true, visitor_of: user.username });
+   if (user) {
+     // Respond with the user's phone number
+     res.json({ success: true, visitor_of: user.username });
 
-      // Update the checkout time for the visitor in the 'visitor' collection
-      const nowUtc = new Date();
-      const offsetMinutes = 8 * 60; // GMT+8
-      const gmtPlus8Time = new Date(nowUtc.getTime() + offsetMinutes * 60 * 1000);
-      const checkoutTime = gmtPlus8Time.toISOString();
+     // Update the checkout time for the visitor in the 'visitor' collection
+     const nowUtc = new Date();
+     const offsetMinutes = 8 * 60; // GMT+8
+     const gmtPlus8Time = new Date(nowUtc.getTime() + offsetMinutes * 60 * 1000);
+     const checkoutTime = gmtPlus8Time.toISOString();
 
-      await client.db('benr2423').collection('visitor').updateOne(
-        { "visitorToken": visitorToken },
-        { $set: { "checkouttime": checkoutTime } }
-      );
+     await client.db('benr2423').collection('visitor').updateOne(
+       { "visitorToken": token },
+       { $set: { "checkouttime": checkoutTime } }
+     );
 
-      // Remove the visitor data from the user's document
-      await client.db('benr2423').collection('users').updateOne(
-        { _id: user._id },
-        { $pull: { visitors: { visitorToken: visitorToken } } }
-      );
+     // Remove the visitor data from the user's document
+     await client.db('benr2423').collection('users').updateOne(
+       { _id: user._id },
+       { $pull: { visitors: { visitorToken: token } } }
+     );
 
-    } else {
-      res.status(404).json({ success: false, message: 'User not found for the provided token.' });
-    }
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      // Handle invalid token
-      console.error('Token verification error:', error.message);
-      res.status(401).json({ success: false, message: 'Invalid token.' });
-    } else {
-      // Handle other errors
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
-    }
-  }
+   } else {
+     res.status(404).json({ success: false, message: 'User not found for the provided token.' });
+   }
+ } catch (error) {
+   if (error instanceof jwt.JsonWebTokenError) {
+     // Handle invalid token
+     res.status(401).json({ success: false, message: 'Invalid token.' });
+   } else {
+     // Handle other errors
+     console.error(error);
+     res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+   }
+ }
 });
 
 
